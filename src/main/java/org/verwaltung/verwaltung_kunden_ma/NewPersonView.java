@@ -59,9 +59,9 @@ public class NewPersonView
      * Must be called by the parent controller after FXML loading to allow saving
      * and updating of the overview table after insertion.
      *
-     * @param personDAO DAO for internal employees
-     * @param externalEmployeesDAO DAO for external employees
-     * @param customerDAO DAO for customers
+     * @param personDAO                DAO for internal employees
+     * @param externalEmployeesDAO     DAO for external employees
+     * @param customerDAO              DAO for customers
      * @param employeesTableController controller of the overview table
      */
     public void SetData(EmployeesDAO personDAO, ExternalEmployeesDAO externalEmployeesDAO, CustomerDAO customerDAO, EmployeesTableController employeesTableController)
@@ -73,68 +73,164 @@ public class NewPersonView
     }
 
     /**
-     * Event handler for the "hinzufügen" button.
+     * Event handler for the "Add" button.
      * <p>
      * Determines which tab is currently active (employee, external employee, or customer),
-     * reads the entered data, validates required fields and creates the corresponding
-     * {@link PersonData} implementation. The new record is saved through the
-     * appropriate DAO and added to the overview table.
+     * validates the required fields (e.g. ID, company, industry), and checks whether the
+     * entered ID already exists in the database.
+     * <ul>
+     *   <li>If validation fails, an alert dialog is shown and the process is aborted.</li>
+     *   <li>If the ID already exists, the user is notified and the record is not inserted.</li>
+     *   <li>If all checks pass, the corresponding {@link PersonData} (or subclass) is created,
+     *       inserted into the database via the appropriate DAO, and added to the overview table.</li>
+     * </ul>
+     * Finally, the dialog window is closed after a successful insertion.
+     *
+     * @implNote
+     * The method performs database lookups using the {@code findById()} method of the
+     * corresponding DAO to prevent duplicate IDs from being inserted.
+     *
+     * @see EmployeesDAO#findById(int)
+     * @see ExternalEmployeesDAO#findById(int)
+     * @see CustomerDAO#findById(int)
      */
     @FXML
     private void onAddClicked()
     {
         Tab active = tabPane.getSelectionModel().getSelectedItem();
+        if (active == null) return;
 
-        if (active.getText().equals("neuer Mitarbeiter"))
+        try
         {
-            try
+            if (active.getText().equals("neuer Mitarbeiter"))
             {
-                var temp = readMitarbeiterData();
-                employeesDAO.insert(temp);
-                int id = parseIntSafe(mtfID.getText());
-                System.out.println(id);
+                int id = validateId(mtfID, "employee");
+                if (id == -1) return; // Abbruch, falls ungültig
+
+                if (employeesDAO.findById(id) != null)
+                {
+                    warn("An employee with ID " + id + " already exists.");
+                    mtfID.requestFocus();
+                    return;
+                }
+
+                var data = readMitarbeiterData();
+                employeesDAO.insert(data);
                 employeesTableController.addAllPerson(employeesDAO.findAll());
-            } catch (SQLException e)
-            {
-                // TODO open error dialog
-                throw new RuntimeException(e);
-            }
+                closeDialog();
 
-        } else if (active.getText().equals("neuer Externer Mitarbeiter"))
-        {
-            try
+            } else if (active.getText().equals("neuer Externer Mitarbeiter"))
             {
-                var temp = readExternerMitarbeiterData();
-                externalEmployeesDAO.insert(temp);
-                int id = parseIntSafe(etfID.getText());
-                System.out.println(id);
+                int id = validateId(etfID, "external employee");
+                if (id == -1) return;
+
+                if (externalEmployeesDAO.findById(id) != null)
+                {
+                    warn("An external employee with ID " + id + " already exists.");
+                    etfID.requestFocus();
+                    return;
+                }
+
+                if (etfFirma.getText() == null || etfFirma.getText().isBlank())
+                {
+                    warn("Please enter a company name for the external employee.");
+                    etfFirma.requestFocus();
+                    return;
+                }
+
+                var data = readExternerMitarbeiterData();
+                externalEmployeesDAO.insert(data);
                 employeesTableController.addAllPerson(externalEmployeesDAO.findAll());
-            } catch (SQLException e)
-            {
-                // TODO open error dialog
-                throw new RuntimeException(e);
-            }
+                closeDialog();
 
-        } else if (active.getText().equals("neuer Kunde"))
-        {
-            try
+            } else if (active.getText().equals("neuer Kunde"))
             {
-                var temp = readCustomerData();
-                customerDAO.insert(temp);
-                int id = parseIntSafe(etfID.getText());
-                System.out.println(id);
+                int id = validateId(tfID, "customer");
+                if (id == -1) return;
+
+                if (customerDAO.findById(id) != null)
+                {
+                    warn("A customer with ID " + id + " already exists.");
+                    tfID.requestFocus();
+                    return;
+                }
+
+                if (tfIndustry.getText() == null || tfIndustry.getText().isBlank())
+                {
+                    warn("Please enter an industry for the customer.");
+                    tfIndustry.requestFocus();
+                    return;
+                }
+
+                var data = readCustomerData();
+                customerDAO.insert(data);
                 employeesTableController.addAllPerson(customerDAO.findAll());
-            } catch (SQLException e)
-            {
-                // TODO open error dialog
-                throw new RuntimeException(e);
+                closeDialog();
             }
-        }
 
+        } catch (SQLException e)
+        {
+            showError("Database error:\n" + e.getMessage());
+        }
+    }
+
+    /**
+     * Shows a simple warning alert.
+     */
+    private void warn(String msg)
+    {
+        new Alert(Alert.AlertType.WARNING, msg, ButtonType.OK).showAndWait();
+    }
+
+    /**
+     * Shows an error alert.
+     */
+    private void showError(String msg)
+    {
+        new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK).showAndWait();
+    }
+
+    /**
+     * Closes the dialog safely.
+     */
+    private void closeDialog()
+    {
         Stage stage = (Stage) btnAdd.getScene().getWindow();
         stage.close();
     }
 
+    /**
+     * Helper method to validate an ID TextField.
+     *
+     * @param tf      the TextField containing the ID
+     * @param context used for error messages (e.g. "employee", "customer")
+     * @return the parsed ID, or -1 if invalid
+     */
+    private int validateId(TextField tf, String context)
+    {
+        if (tf.getText() == null || tf.getText().isBlank())
+        {
+            warn("Please enter an " + context + " ID.");
+            tf.requestFocus();
+            return -1;
+        }
+        try
+        {
+            int id = Integer.parseInt(tf.getText().trim());
+            if (id <= 0)
+            {
+                warn("The " + context + " ID must be a positive number.");
+                tf.requestFocus();
+                return -1;
+            }
+            return id;
+        } catch (NumberFormatException e)
+        {
+            warn("The " + context + " ID must be a valid number.");
+            tf.requestFocus();
+            return -1;
+        }
+    }
 
     /**
      * Reads and builds a {@link PersonData} instance for an internal employee
