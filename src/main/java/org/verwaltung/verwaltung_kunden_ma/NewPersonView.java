@@ -13,6 +13,15 @@ import org.verwaltung.verwaltung_kunden_ma.database_connection.ExternalEmployees
 
 import java.sql.SQLException;
 
+
+/**
+ * Controller for the "New Person" dialog.
+ * <p>
+ * Allows the user to create new records (employee, external employee or customer)
+ * by entering data into the respective tab. After validation the data is persisted
+ * using the appropriate DAO. The dialog is loaded by {@link ManagementController}
+ * when the user chooses to create a new dataset.
+ */
 public class NewPersonView
 {
     @FXML
@@ -30,6 +39,12 @@ public class NewPersonView
     @FXML
     private TextField tfID, tfVorname, tfNachname, tfStraße, tfPLZ, tfOrt, tfTelefon, tfEmail, tfIndustry;
 
+    /**
+     * JavaFX lifecycle method.
+     * <p>
+     * Called automatically after FXML loading. Initializes UI behavior,
+     * such as restricting ID fields to numeric input.
+     */
     @FXML
     private void initialize()
     {
@@ -38,6 +53,17 @@ public class NewPersonView
         limitNumericField(tfID, 6);
     }
 
+    /**
+     * Injects the required DAOs and the overview table controller into this dialog.
+     * <p>
+     * Must be called by the parent controller after FXML loading to allow saving
+     * and updating of the overview table after insertion.
+     *
+     * @param personDAO DAO for internal employees
+     * @param externalEmployeesDAO DAO for external employees
+     * @param customerDAO DAO for customers
+     * @param employeesTableController controller of the overview table
+     */
     public void SetData(EmployeesDAO personDAO, ExternalEmployeesDAO externalEmployeesDAO, CustomerDAO customerDAO, EmployeesTableController employeesTableController)
     {
         this.employeesDAO = personDAO;
@@ -46,6 +72,14 @@ public class NewPersonView
         this.employeesTableController = employeesTableController;
     }
 
+    /**
+     * Event handler for the "hinzufügen" button.
+     * <p>
+     * Determines which tab is currently active (employee, external employee, or customer),
+     * reads the entered data, validates required fields and creates the corresponding
+     * {@link PersonData} implementation. The new record is saved through the
+     * appropriate DAO and added to the overview table.
+     */
     @FXML
     private void onAddClicked()
     {
@@ -101,6 +135,13 @@ public class NewPersonView
         stage.close();
     }
 
+
+    /**
+     * Reads and builds a {@link PersonData} instance for an internal employee
+     * from the corresponding text fields and assigns the parsed ID.
+     *
+     * @return a populated {@link PersonData} representing the employee
+     */
     private PersonData readMitarbeiterData()
     {
         PersonData p = new PersonData(
@@ -116,6 +157,12 @@ public class NewPersonView
         return p;
     }
 
+    /**
+     * Reads and builds an {@link ExternalEmployeesData} instance from the
+     * "external employee" input fields and assigns the parsed ID.
+     *
+     * @return a populated {@link ExternalEmployeesData} record
+     */
     private ExternalEmployeesData readExternerMitarbeiterData()
     {
         ExternalEmployeesData e = new ExternalEmployeesData(
@@ -132,6 +179,12 @@ public class NewPersonView
         return e;
     }
 
+    /**
+     * Reads and builds a {@link CustomerData} instance from the "customer"
+     * input fields and assigns the parsed ID.
+     *
+     * @return a populated {@link CustomerData} record
+     */
     private CustomerData readCustomerData()
     {
         CustomerData e = new CustomerData(
@@ -148,6 +201,16 @@ public class NewPersonView
         return e;
     }
 
+    /**
+     * Parses an integer from the given string in a null- and whitespace-safe manner.
+     * <p>
+     * If parsing fails, this method currently returns {@code 0}. Consider replacing
+     * this behavior with validation and user feedback to avoid silently creating
+     * invalid IDs.
+     *
+     * @param s the string to parse (may be {@code null})
+     * @return the parsed integer, or {@code 0} if parsing fails
+     */
     private int parseIntSafe(String s)
     {
         try
@@ -155,10 +218,10 @@ public class NewPersonView
             return Integer.parseInt(s.trim());
         } catch (Exception e)
         {
-            System.out.println("bnlubb");
+            System.out.println("not a Number");
             ;
             return 0;
-        } // oder Validation werfen
+        }
     }
 
 

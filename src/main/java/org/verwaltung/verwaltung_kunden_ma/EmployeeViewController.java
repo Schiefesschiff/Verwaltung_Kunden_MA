@@ -4,27 +4,23 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import org.verwaltung.verwaltung_kunden_ma.PersonDatas.ExternalEmployeesData;
 import org.verwaltung.verwaltung_kunden_ma.PersonDatas.PersonData;
-import org.verwaltung.verwaltung_kunden_ma.database_connection.ExternalEmployeesDAO;
+import org.verwaltung.verwaltung_kunden_ma.database_connection.EmployeesDAO;
 
 import java.sql.SQLException;
 
-
 /**
- * Controller for the detail view of external employees.
+ * Controller for the detail view of internal employees.
  * <p>
  * Provides navigation (next/previous), search by employee ID, deletion of the
- * current record, and refreshing of the currently displayed employee.
- * Data is retrieved via {@link ExternalEmployeesDAO} and displayed in
- * label fields defined in FXML.
+ * current record, and refreshing of the currently displayed employee. Data is
+ * retrieved via {@link EmployeesDAO} and rendered into label fields defined in FXML.
  */
-public class ExternalEmployeeViewController
+public class EmployeeViewController
 {
 
-    private ExternalEmployeesDAO externalEmployeesDAO;
-    private Integer currentId;
-
+    private EmployeesDAO employeesDAO;
+    private Integer currentId; // aktuell angezeigte mitarbeiternummer
 
     @FXML
     private Label colId;
@@ -42,24 +38,21 @@ public class ExternalEmployeeViewController
     private Label colPhone;
     @FXML
     private Label colEmail;
-    @FXML
-    private Label colCompany;
 
     @FXML
     private TextField tfSearch;
 
     /**
-     * Injects the DAO and immediately displays the first record if available.
+     * Injects the DAO and shows the first record immediately if available.
      * <p>
      * This method should be called by the hosting controller once the DAO is ready.
      *
-     * @param personDAO the {@link ExternalEmployeesDAO} used for database access
+     * @param personDAO the {@link EmployeesDAO} used for database access
      */
-    public void setData(ExternalEmployeesDAO personDAO)
+    public void setData(EmployeesDAO personDAO)
     {
-        this.externalEmployeesDAO = personDAO;
+        this.employeesDAO = personDAO;
 
-        // Beim erstmaligen Setzen direkt den ersten Datensatz anzeigen
         try
         {
             PersonData first = personDAO.findFirst();
@@ -80,17 +73,17 @@ public class ExternalEmployeeViewController
     // --- Button-Handler (werden im FXML via onAction gebunden) ---
 
     /**
-     * Navigates to the next external employee (circular) and displays it.
+     * Navigates to the next employee (circular) and displays it.
      */
     @FXML
     private void onNext()
     {
-        if (externalEmployeesDAO == null) return;
+        if (employeesDAO == null) return;
         try
         {
             PersonData p = (currentId == null)
-                    ? externalEmployeesDAO.findFirst()
-                    : externalEmployeesDAO.findNextByIdCircular(currentId);
+                    ? employeesDAO.findFirst()
+                    : employeesDAO.findNextByIdCircular(currentId);
             if (p != null) show(p);
         } catch (SQLException e)
         {
@@ -99,17 +92,17 @@ public class ExternalEmployeeViewController
     }
 
     /**
-     * Navigates to the previous external employee (circular) and displays it.
+     * Navigates to the previous employee (circular) and displays it.
      */
     @FXML
     private void onPrevious()
     {
-        if (externalEmployeesDAO == null) return;
+        if (employeesDAO == null) return;
         try
         {
             PersonData p = (currentId == null)
-                    ? externalEmployeesDAO.findLast()
-                    : externalEmployeesDAO.findPreviousByIdCircular(currentId);
+                    ? employeesDAO.findLast()
+                    : employeesDAO.findPreviousByIdCircular(currentId);
             if (p != null) show(p);
         } catch (SQLException e)
         {
@@ -118,7 +111,7 @@ public class ExternalEmployeeViewController
     }
 
     /**
-     * Searches an external employee by the number entered in {@code tfSearch} and displays it.
+     * Searches an employee by the number entered in {@code tfSearch} and displays it.
      * <p>
      * If the input is not a valid number, a short hint is shown in {@code colId}.
      * If no record is found, the view is cleared and marked as "nicht gefunden".
@@ -126,7 +119,7 @@ public class ExternalEmployeeViewController
     @FXML
     private void onSearch()
     {
-        if (externalEmployeesDAO == null || tfSearch == null) return;
+        if (employeesDAO == null || tfSearch == null) return;
 
         String txt = tfSearch.getText();
         if (txt == null || txt.isBlank()) return;
@@ -134,17 +127,19 @@ public class ExternalEmployeeViewController
         try
         {
             int id = Integer.parseInt(txt.trim());
-            PersonData p = externalEmployeesDAO.findById(id);
+            PersonData p = employeesDAO.findById(id);
             if (p != null)
             {
                 show(p);
             } else
             {
+                // keine Treffer -> UI leeren oder Hinweis anzeigen
                 clearView();
                 colId.setText("nicht gefunden");
             }
         } catch (NumberFormatException nfe)
         {
+            // ungültige Zahl -> kurz anzeigen
             colId.setText("ungültige Nummer");
         } catch (SQLException e)
         {
@@ -155,9 +150,9 @@ public class ExternalEmployeeViewController
     // --- interne Helfer ---
 
     /**
-     * Renders the given external employee record into the UI and updates {@code currentId}.
+     * Renders the given person data into the UI and updates {@code currentId}.
      *
-     * @param p the employee record to display (must not be {@code null})
+     * @param p the employee record to display (must not be null)
      */
     private void show(PersonData p)
     {
@@ -171,9 +166,6 @@ public class ExternalEmployeeViewController
         colPlace.setText(s(p.getPlace()));
         colPhone.setText(s(p.getPhone()));
         colEmail.setText(s(p.getEmail()));
-
-        ExternalEmployeesData external = (ExternalEmployeesData) p;
-        colCompany.setText(s(external.getCompany()));
     }
 
     /**
@@ -190,18 +182,17 @@ public class ExternalEmployeeViewController
         colPlace.setText("-");
         colPhone.setText("-");
         colEmail.setText("-");
-        colCompany.setText("-");
     }
 
     /**
-     * Reloads and re-renders the currently displayed external employee by {@code currentId}.
+     * Reloads and re-renders the currently displayed employee by {@code currentId}.
      * <p>
      * If the record no longer exists, the view is cleared. On SQL errors, the view
      * is also cleared after logging the exception.
      */
     public void checkCurrentIdAndRefresh()
     {
-        if (externalEmployeesDAO == null || currentId == null)
+        if (employeesDAO == null || currentId == null)
         {
             clearView();
             return;
@@ -209,7 +200,7 @@ public class ExternalEmployeeViewController
 
         try
         {
-            PersonData p = externalEmployeesDAO.findById(currentId);
+            PersonData p = employeesDAO.findById(currentId);
             if (p != null)
             {
                 show(p);
@@ -236,7 +227,7 @@ public class ExternalEmployeeViewController
     }
 
     /**
-     * Deletes the currently displayed external employee and navigates to the next or previous one.
+     * Deletes the currently displayed employee and navigates to the next or previous one.
      * <p>
      * If no further records exist after deletion, the view is cleared.
      *
@@ -244,31 +235,27 @@ public class ExternalEmployeeViewController
      */
     public void onDeleteAction(ActionEvent actionEvent)
     {
-        if (externalEmployeesDAO == null || currentId == null) return;
+        if (employeesDAO == null || currentId == null) return;
 
-        int idToDelete = currentId; // aktuelle ID merken
+        int idToDelete = currentId;
 
         try
         {
-            // 1) Datensatz löschen
-            externalEmployeesDAO.delete(idToDelete);
+            employeesDAO.delete(idToDelete);
 
-            // 2) Nächsten suchen
-            PersonData next = externalEmployeesDAO.findNextByIdCircular(idToDelete);
+            PersonData next = employeesDAO.findNextByIdCircular(idToDelete);
 
-            // 3) Falls kein nächster existiert, den vorherigen anzeigen
             if (next == null)
             {
-                next = externalEmployeesDAO.findPreviousByIdCircular(idToDelete);
+                next = employeesDAO.findPreviousByIdCircular(idToDelete);
             }
 
-            // 4) Ergebnis anzeigen oder View leeren
             if (next != null)
             {
-                show(next); // setzt currentId neu
+                show(next);
             } else
             {
-                clearView(); // keine Mitarbeiter mehr
+                clearView();
             }
 
         } catch (SQLException e)

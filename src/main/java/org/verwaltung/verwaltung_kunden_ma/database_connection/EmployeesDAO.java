@@ -9,15 +9,33 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Access Object (DAO) for the {@code mitarbeiter} table.
+ * <p>
+ * Provides CRUD operations and navigation methods for employees.
+ * All operations use JDBC with the provided {@link SQLConnector}.
+ */
 public class EmployeesDAO
 {
     private final SQLConnector connector;
 
+    /**
+     * Creates a new EmployeesDAO.
+     *
+     * @param connector the SQLConnector providing database connections
+     */
     public EmployeesDAO(SQLConnector connector)
     {
         this.connector = connector;
     }
 
+    /**
+     * Finds an employee by ID.
+     *
+     * @param id employee number
+     * @return the {@link PersonData} or {@code null} if not found
+     * @throws SQLException if a database error occurs
+     */
     public PersonData findById(int id) throws SQLException {
         String sql = "SELECT * FROM mitarbeiter WHERE mitarbeiternummer = ?";
 
@@ -34,6 +52,13 @@ public class EmployeesDAO
         return null;
     }
 
+
+    /**
+     * Returns all employees ordered by ID.
+     *
+     * @return list of employees (never {@code null})
+     * @throws SQLException if a database error occurs
+     */
     public List<PersonData> findAll() throws SQLException
     {
         String sql = "SELECT * FROM mitarbeiter ORDER BY mitarbeiternummer";
@@ -51,7 +76,13 @@ public class EmployeesDAO
         return list;
     }
 
-    // NÄCHSTER (strict > currentId). Gibt null zurück, wenn es keinen größeren gibt.
+    /**
+     * Finds the next employee (with a higher ID).
+     *
+     * @param currentId current employee number
+     * @return next employee or {@code null} if none exists
+     * @throws SQLException if a database error occurs
+     */
     public PersonData findNextById(int currentId) throws SQLException {
         String sql = """
         SELECT *
@@ -69,7 +100,13 @@ public class EmployeesDAO
         }
     }
 
-    // VORHERIGER (strict < currentId). Gibt null zurück, wenn es keinen kleineren gibt.
+    /**
+     * Finds the previous employee (with a lower ID).
+     *
+     * @param currentId current employee number
+     * @return previous employee or {@code null} if none exists
+     * @throws SQLException if a database error occurs
+     */
     public PersonData findPreviousById(int currentId) throws SQLException {
         String sql = """
         SELECT *
@@ -87,18 +124,36 @@ public class EmployeesDAO
         }
     }
 
-    // OPTIONAL: „circular“ – springt zum ersten/letzten, wenn es keinen nächsten/vorherigen gibt.
+    /**
+     * Finds the next employee or wraps around to the first one.
+     *
+     * @param currentId current employee number
+     * @return next or first employee
+     * @throws SQLException if a database error occurs
+     */
     public PersonData findNextByIdCircular(int currentId) throws SQLException {
         PersonData next = findNextById(currentId);
         return (next != null) ? next : findFirst();
     }
 
+    /**
+     * Finds the previous employee or wraps around to the last one.
+     *
+     * @param currentId current employee number
+     * @return previous or last employee
+     * @throws SQLException if a database error occurs
+     */
     public PersonData findPreviousByIdCircular(int currentId) throws SQLException {
         PersonData prev = findPreviousById(currentId);
         return (prev != null) ? prev : findLast();
     }
 
-    // Erster/Letzter nach mitarbeiternummer (nützlich für UI-Buttons „<<“/„>>“)
+    /**
+     * Returns the employee with the smallest ID.
+     *
+     * @return first employee or {@code null} if table is empty
+     * @throws SQLException if a database error occurs
+     */
     public PersonData findFirst() throws SQLException {
         String sql = """
         SELECT *
@@ -113,6 +168,12 @@ public class EmployeesDAO
         }
     }
 
+    /**
+     * Returns the employee with the largest ID.
+     *
+     * @return last employee or {@code null} if table is empty
+     * @throws SQLException if a database error occurs
+     */
     public PersonData findLast() throws SQLException {
         String sql = """
         SELECT *
@@ -127,6 +188,12 @@ public class EmployeesDAO
         }
     }
 
+    /**
+     * Inserts a new employee into the database.
+     *
+     * @param p the employee to insert
+     * @throws SQLException if insertion fails
+     */
     public void insert(PersonData p) throws SQLException {
         String sql = "INSERT INTO mitarbeiter " +
                 "(mitarbeiternummer, vorname, nachname, strasse, plz, ort, telefon, email) " +
@@ -148,6 +215,12 @@ public class EmployeesDAO
         }
     }
 
+    /**
+     * Deletes an employee by ID.
+     *
+     * @param id the employee number to delete
+     * @throws SQLException if a database error occurs
+     */
     public void delete(int id) throws SQLException {
         String sql = "DELETE FROM mitarbeiter WHERE mitarbeiternummer = ?";
 
@@ -159,6 +232,13 @@ public class EmployeesDAO
         }
     }
 
+    /**
+     * Maps a row of the {@code mitarbeiter} table into a {@link PersonData}.
+     *
+     * @param rs a ResultSet positioned at a row
+     * @return the mapped employee data
+     * @throws SQLException if column access fails
+     */
     private PersonData mapResultSetToPerson(ResultSet rs) throws SQLException {
         PersonData p = new PersonData(
                 rs.getString("vorname"),

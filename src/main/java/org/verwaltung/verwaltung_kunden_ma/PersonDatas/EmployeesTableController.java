@@ -16,6 +16,14 @@ import org.verwaltung.verwaltung_kunden_ma.database_connection.ExternalEmployees
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * JavaFX controller for the overview {@link TableView} of employees, external employees and customers.
+ * <p>
+ * Configures the table columns, handles population with data from DAOs, and
+ * adds delete buttons to each row. Depending on the {@link PersonData} subtype
+ * (employee, external employee, or customer) additional columns such as
+ * company or industry are displayed dynamically.
+ */
 public class EmployeesTableController
 {
     @FXML
@@ -49,7 +57,13 @@ public class EmployeesTableController
     private ExternalEmployeesDAO externalEmployeesDAO;
     private CustomerDAO customerDAO;
 
-
+    /**
+     * Initializes the table after FXML loading.
+     * <p>
+     * Configures cell value factories for basic person attributes
+     * and installs custom logic for {@code company}, {@code industry}
+     * and the row-specific delete button.
+     */
     @FXML
     public void initialize()
     {
@@ -64,12 +78,12 @@ public class EmployeesTableController
 
         colCompany.setCellValueFactory(cd ->
         {
-            PersonData p = cd.getValue(); // Zeilenobjekt holen
+            PersonData p = cd.getValue();
             if (p instanceof ExternalEmployeesData e)
             {
-                return new ReadOnlyStringWrapper(e.getCompany()); // Wert aus Unterklasse
+                return new ReadOnlyStringWrapper(e.getCompany());
             }
-            return new ReadOnlyStringWrapper(""); // sonst leer
+            return new ReadOnlyStringWrapper("");
         });
 
         colIndustry.setCellValueFactory(cd ->
@@ -86,6 +100,13 @@ public class EmployeesTableController
         employeesTable.setItems(personList);
     }
 
+    /**
+     * Injects DAOs used for delete operations and initial loading of data.
+     *
+     * @param personDAO            DAO for employees
+     * @param externalEmployeesDAO DAO for external employees
+     * @param customerDAO          DAO for customers
+     */
     public void setData(EmployeesDAO personDAO, ExternalEmployeesDAO externalEmployeesDAO, CustomerDAO customerDAO)
     {
         this.employeesDAO = personDAO;
@@ -101,6 +122,12 @@ public class EmployeesTableController
         }
     }
 
+    /**
+     * Creates a custom cell with a "Delete" button
+     * that removes the corresponding row both from the table and the database.
+     *
+     * @return a table cell containing the delete button
+     */
     private TableCell<PersonData, Void> createDeleteButtonCell()
     {
         return new TableCell<>()
@@ -127,6 +154,12 @@ public class EmployeesTableController
         };
     }
 
+    /**
+     * Replaces all table entries with the given list of persons.
+     * Automatically adjusts column visibility for company/industry depending on type.
+     *
+     * @param personList list of employees, external employees, or customers
+     */
     public void addAllPerson(List<? extends PersonData> personList)
     {
         this.personList.clear();
@@ -134,6 +167,11 @@ public class EmployeesTableController
         if (!personList.isEmpty()) checkPersonData(personList.get(0));
     }
 
+    /**
+     * Adjusts visibility of special columns depending on the type of person.
+     *
+     * @param person first element of the list (used for type detection)
+     */
     private void checkPersonData(PersonData person)
     {    // Spezialspalten standardmäßig aus
         colCompany.setVisible(false);
@@ -148,6 +186,12 @@ public class EmployeesTableController
         }
     }
 
+    /**
+     * Deletes the given person both from the table model and from the database.
+     * The DAO used depends on the runtime type of the {@link PersonData}.
+     *
+     * @param person person record to delete
+     */
     public void deletePerson(PersonData person)
     {
         if (personList.contains(person))

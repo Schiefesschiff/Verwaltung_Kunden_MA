@@ -8,8 +8,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.stage.Stage;
-import org.verwaltung.verwaltung_kunden_ma.PersonDatas.ExternalEmployeesData;
-import org.verwaltung.verwaltung_kunden_ma.PersonDatas.PersonData;
 import org.verwaltung.verwaltung_kunden_ma.PersonDatas.EmployeesTableController;
 import org.verwaltung.verwaltung_kunden_ma.database_connection.CustomerDAO;
 import org.verwaltung.verwaltung_kunden_ma.database_connection.EmployeesDAO;
@@ -18,12 +16,20 @@ import org.verwaltung.verwaltung_kunden_ma.database_connection.SQLConnector;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
+/**
+ * Main controller for the management application.
+ * <p>
+ * This controller coordinates all subviews (employees, external employees,
+ * customers) and wires them with their respective DAOs. It also handles
+ * tab navigation, initializes the database connectors and delegates
+ * actions such as loading data or opening dialogs.
+ */
 public class ManagementController
 {
+    /**
+     * Enumeration of the possible data view types shown in the overview.
+     */
     public enum DataViewType
     {
         EMPLOYEES,
@@ -50,18 +56,31 @@ public class ManagementController
     @FXML
     private EmployeesTableController employeesTableController;
     @FXML
-    private IndividualEmployeeViewController individualEmployeeViewController;
+    private EmployeeViewController individualEmployeeViewController;
     @FXML
     private ExternalEmployeeViewController externalEmployeeViewController;
+    @FXML
+    private CustomerViewController customerViewController;
     @FXML
     private NewPersonView newPersonView;
     @FXML
     private Tab tabOverview;
+    @FXML
+    private Tab tabEmployee;
+    @FXML
+    private Tab tabExternal;
+    @FXML
+    private Tab tabCustomer;
 
+    /**
+     * JavaFX lifecycle method, called automatically after FXML loading.
+     * <p>
+     * Initializes the SQL connection, instantiates the DAOs,
+     * injects them into child controllers and sets up tab selection listeners.
+     */
     @FXML
     private void initialize()
     {
-        // hier im Controller den Click-Handler setzen
         btnNewDataSet.setOnAction(e -> OpenNewPersonView());
 
         sqlConnector = new SQLConnector(ip, database, user, password);
@@ -71,6 +90,7 @@ public class ManagementController
         employeesTableController.setData(employeesDAO, externalEmployeesDAO, costumerDAO);
         individualEmployeeViewController.setData(employeesDAO);
         externalEmployeeViewController.setData(externalEmployeesDAO);
+        customerViewController.setData(costumerDAO);
 
         tabOverview.setOnSelectionChanged(e ->
         {
@@ -80,31 +100,47 @@ public class ManagementController
                 {
                     switch (lastView)
                     {
-                        case EMPLOYEES -> onMitarbeiterClicked();
-                        case EXTERNAL -> onExternClicked();
-                        case CUSTOMERS -> onKundenClicked();
+                        case EMPLOYEES -> onEmployeeClicked();
+                        case EXTERNAL -> onExternalClicked();
+                        case CUSTOMERS -> onCustomerClicked();
                     }
                 }
             }
         });
+
+        tabEmployee.setOnSelectionChanged(evt ->
+        {
+            if (tabEmployee.isSelected())
+            {
+                individualEmployeeViewController.checkCurrentIdAndRefresh();
+            }
+        });
+
+        tabExternal.setOnSelectionChanged(evt ->
+        {
+            if (tabExternal.isSelected())
+            {
+                externalEmployeeViewController.checkCurrentIdAndRefresh();
+            }
+        });
+
+        tabCustomer.setOnSelectionChanged(evt ->
+        {
+            if (tabCustomer.isSelected())
+            {
+                customerViewController.checkCurrentIdAndRefresh();
+            }
+        });
     }
 
+    /**
+     * Loads all employees into the overview table and
+     * marks this view as the last selected one.
+     *
+     * @throws RuntimeException if a database error occurs
+     */
     @FXML
-    private void onTestDataClicked()
-    {
-        System.out.println("Button 'Mitarbeiter' wurde geklickt!");
-
-        List<PersonData> personData = new ArrayList<PersonData>();
-        Collections.addAll(
-                personData,
-                new ExternalEmployeesData("Max", "Mustermann", "Musterstraße 1", "12345", "Musterstadt", "0123-456789", "max@example.com", "Firma A"),
-                new ExternalEmployeesData("Erika", "Musterfrau", "Beispielweg 2", "54321", "Beispielstadt", "0987-654321", "erika@example.com", "Firma B")
-        );
-        employeesTableController.addAllPerson(personData);
-    }
-
-    @FXML
-    private void onMitarbeiterClicked()
+    private void onEmployeeClicked()
     {
         try
         {
@@ -116,8 +152,14 @@ public class ManagementController
         }
     }
 
+    /**
+     * Loads all external employees into the overview table and
+     * marks this view as the last selected one.
+     *
+     * @throws RuntimeException if a database error occurs
+     */
     @FXML
-    private void onExternClicked()
+    private void onExternalClicked()
     {
         try
         {
@@ -130,8 +172,14 @@ public class ManagementController
 
     }
 
+    /**
+     * Loads all customers into the overview table and
+     * marks this view as the last selected one.
+     *
+     * @throws RuntimeException if a database error occurs
+     */
     @FXML
-    private void onKundenClicked()
+    private void onCustomerClicked()
     {
         try
         {
@@ -143,7 +191,12 @@ public class ManagementController
         }
     }
 
-
+    /**
+     * Opens the dialog for creating a new record (employee, external employee or customer).
+     * <p>
+     * Loads the {@code NewPersonView.fxml}, injects the DAOs into its controller
+     * and shows the dialog in a new stage.
+     */
     @FXML
     private void OpenNewPersonView()
     {
@@ -171,6 +224,12 @@ public class ManagementController
         }
     }
 
+
+    /**
+     * Displays an error dialog with the given message.
+     *
+     * @param message the error message to show
+     */
     private void showErrorDialog(String message)
     {
         Alert alert = new Alert(Alert.AlertType.ERROR);

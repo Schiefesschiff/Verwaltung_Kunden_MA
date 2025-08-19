@@ -4,27 +4,27 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import org.verwaltung.verwaltung_kunden_ma.PersonDatas.CustomerData;
 import org.verwaltung.verwaltung_kunden_ma.PersonDatas.ExternalEmployeesData;
 import org.verwaltung.verwaltung_kunden_ma.PersonDatas.PersonData;
+import org.verwaltung.verwaltung_kunden_ma.database_connection.CustomerDAO;
+import org.verwaltung.verwaltung_kunden_ma.database_connection.EmployeesDAO;
 import org.verwaltung.verwaltung_kunden_ma.database_connection.ExternalEmployeesDAO;
 
 import java.sql.SQLException;
 
-
 /**
- * Controller for the detail view of external employees.
+ * Controller for the detail view of customers.
  * <p>
- * Provides navigation (next/previous), search by employee ID, deletion of the
- * current record, and refreshing of the currently displayed employee.
- * Data is retrieved via {@link ExternalEmployeesDAO} and displayed in
- * label fields defined in FXML.
+ * Provides navigation (next/previous), search by customer number, deletion of the
+ * current record, and refreshing of the currently displayed customer.
+ * Data is retrieved via {@link CustomerDAO} and displayed in label fields defined in FXML.
  */
-public class ExternalEmployeeViewController
+public class CustomerViewController
 {
 
-    private ExternalEmployeesDAO externalEmployeesDAO;
+    private CustomerDAO customerDAO;
     private Integer currentId;
-
 
     @FXML
     private Label colId;
@@ -43,21 +43,21 @@ public class ExternalEmployeeViewController
     @FXML
     private Label colEmail;
     @FXML
-    private Label colCompany;
+    private Label colIndustry;
 
     @FXML
-    private TextField tfSearch;
+    private TextField tfSearch; // Eingabefeld für "Mitarbeiternummer eingabe"
 
     /**
      * Injects the DAO and immediately displays the first record if available.
      * <p>
      * This method should be called by the hosting controller once the DAO is ready.
      *
-     * @param personDAO the {@link ExternalEmployeesDAO} used for database access
+     * @param personDAO the {@link CustomerDAO} used for database access
      */
-    public void setData(ExternalEmployeesDAO personDAO)
+    public void setData(CustomerDAO personDAO)
     {
-        this.externalEmployeesDAO = personDAO;
+        this.customerDAO = personDAO;
 
         // Beim erstmaligen Setzen direkt den ersten Datensatz anzeigen
         try
@@ -80,17 +80,17 @@ public class ExternalEmployeeViewController
     // --- Button-Handler (werden im FXML via onAction gebunden) ---
 
     /**
-     * Navigates to the next external employee (circular) and displays it.
+     * Navigates to the next customer (circular) and displays it.
      */
     @FXML
     private void onNext()
     {
-        if (externalEmployeesDAO == null) return;
+        if (customerDAO == null) return;
         try
         {
             PersonData p = (currentId == null)
-                    ? externalEmployeesDAO.findFirst()
-                    : externalEmployeesDAO.findNextByIdCircular(currentId);
+                    ? customerDAO.findFirst()
+                    : customerDAO.findNextByIdCircular(currentId);
             if (p != null) show(p);
         } catch (SQLException e)
         {
@@ -99,17 +99,17 @@ public class ExternalEmployeeViewController
     }
 
     /**
-     * Navigates to the previous external employee (circular) and displays it.
+     * Navigates to the previous customer (circular) and displays it.
      */
     @FXML
     private void onPrevious()
     {
-        if (externalEmployeesDAO == null) return;
+        if (customerDAO == null) return;
         try
         {
             PersonData p = (currentId == null)
-                    ? externalEmployeesDAO.findLast()
-                    : externalEmployeesDAO.findPreviousByIdCircular(currentId);
+                    ? customerDAO.findLast()
+                    : customerDAO.findPreviousByIdCircular(currentId);
             if (p != null) show(p);
         } catch (SQLException e)
         {
@@ -118,7 +118,7 @@ public class ExternalEmployeeViewController
     }
 
     /**
-     * Searches an external employee by the number entered in {@code tfSearch} and displays it.
+     * Searches a customer by the number entered in {@code tfSearch} and displays it.
      * <p>
      * If the input is not a valid number, a short hint is shown in {@code colId}.
      * If no record is found, the view is cleared and marked as "nicht gefunden".
@@ -126,7 +126,7 @@ public class ExternalEmployeeViewController
     @FXML
     private void onSearch()
     {
-        if (externalEmployeesDAO == null || tfSearch == null) return;
+        if (customerDAO == null || tfSearch == null) return;
 
         String txt = tfSearch.getText();
         if (txt == null || txt.isBlank()) return;
@@ -134,17 +134,19 @@ public class ExternalEmployeeViewController
         try
         {
             int id = Integer.parseInt(txt.trim());
-            PersonData p = externalEmployeesDAO.findById(id);
+            PersonData p = customerDAO.findById(id);
             if (p != null)
             {
                 show(p);
             } else
             {
+                // keine Treffer -> UI leeren oder Hinweis anzeigen
                 clearView();
                 colId.setText("nicht gefunden");
             }
         } catch (NumberFormatException nfe)
         {
+            // ungültige Zahl -> kurz anzeigen
             colId.setText("ungültige Nummer");
         } catch (SQLException e)
         {
@@ -155,9 +157,9 @@ public class ExternalEmployeeViewController
     // --- interne Helfer ---
 
     /**
-     * Renders the given external employee record into the UI and updates {@code currentId}.
+     * Renders the given customer record into the UI and updates {@code currentId}.
      *
-     * @param p the employee record to display (must not be {@code null})
+     * @param p the customer record to display (must not be {@code null})
      */
     private void show(PersonData p)
     {
@@ -172,8 +174,8 @@ public class ExternalEmployeeViewController
         colPhone.setText(s(p.getPhone()));
         colEmail.setText(s(p.getEmail()));
 
-        ExternalEmployeesData external = (ExternalEmployeesData) p;
-        colCompany.setText(s(external.getCompany()));
+        CustomerData external = (CustomerData) p;
+        colIndustry.setText(s(external.getIndustry()));
     }
 
     /**
@@ -190,18 +192,18 @@ public class ExternalEmployeeViewController
         colPlace.setText("-");
         colPhone.setText("-");
         colEmail.setText("-");
-        colCompany.setText("-");
+        colIndustry.setText("-");
     }
 
     /**
-     * Reloads and re-renders the currently displayed external employee by {@code currentId}.
+     * Reloads and re-renders the currently displayed customer by {@code currentId}.
      * <p>
      * If the record no longer exists, the view is cleared. On SQL errors, the view
      * is also cleared after logging the exception.
      */
     public void checkCurrentIdAndRefresh()
     {
-        if (externalEmployeesDAO == null || currentId == null)
+        if (customerDAO == null || currentId == null)
         {
             clearView();
             return;
@@ -209,18 +211,18 @@ public class ExternalEmployeeViewController
 
         try
         {
-            PersonData p = externalEmployeesDAO.findById(currentId);
+            PersonData p = customerDAO.findById(currentId);
             if (p != null)
             {
-                show(p);
+                show(p);   // Datensatz neu anzeigen (falls sich Daten geändert haben)
             } else
             {
-                clearView();
+                clearView(); // Datensatz existiert nicht mehr
             }
         } catch (SQLException e)
         {
             e.printStackTrace();
-            clearView();
+            clearView(); // im Fehlerfall ebenfalls View leeren
         }
     }
 
@@ -236,7 +238,7 @@ public class ExternalEmployeeViewController
     }
 
     /**
-     * Deletes the currently displayed external employee and navigates to the next or previous one.
+     * Deletes the currently displayed customer and navigates to the next or previous one.
      * <p>
      * If no further records exist after deletion, the view is cleared.
      *
@@ -244,22 +246,22 @@ public class ExternalEmployeeViewController
      */
     public void onDeleteAction(ActionEvent actionEvent)
     {
-        if (externalEmployeesDAO == null || currentId == null) return;
+        if (customerDAO == null || currentId == null) return;
 
         int idToDelete = currentId; // aktuelle ID merken
 
         try
         {
             // 1) Datensatz löschen
-            externalEmployeesDAO.delete(idToDelete);
+            customerDAO.delete(idToDelete);
 
             // 2) Nächsten suchen
-            PersonData next = externalEmployeesDAO.findNextByIdCircular(idToDelete);
+            PersonData next = customerDAO.findNextByIdCircular(idToDelete);
 
             // 3) Falls kein nächster existiert, den vorherigen anzeigen
             if (next == null)
             {
-                next = externalEmployeesDAO.findPreviousByIdCircular(idToDelete);
+                next = customerDAO.findPreviousByIdCircular(idToDelete);
             }
 
             // 4) Ergebnis anzeigen oder View leeren

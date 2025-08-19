@@ -1,5 +1,13 @@
 package org.verwaltung.verwaltung_kunden_ma.PersonDatas;
 
+/**
+ * Base data model representing a person.
+ * <p>
+ * Contains common attributes such as ID, name, address,
+ * phone number, and e-mail. It serves as the superclass
+ * for more specific types like {@link CustomerData} and
+ * {@link ExternalEmployeesData}.
+ */
 public class PersonData
 {
     private int id;
@@ -11,6 +19,18 @@ public class PersonData
     private String phone;
     private String email;
 
+
+    /**
+     * Constructs a new person with the given details.
+     *
+     * @param firstName first name
+     * @param lastName  last name
+     * @param street    street address
+     * @param plz       postal code
+     * @param place     city or town
+     * @param phone     phone number
+     * @param email     e-mail address
+     */
     public PersonData(String firstName, String lastName, String street, String plz, String place, String phone, String email)
     {
         this.firstName = firstName;
