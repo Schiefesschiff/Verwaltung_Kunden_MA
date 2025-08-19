@@ -1,14 +1,201 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.verwaltung.verwaltung_kunden_ma.NewPersonView"
-            prefHeight="400.0" prefWidth="600.0">
+<AnchorPane prefHeight="405.0" prefWidth="497.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.verwaltung.verwaltung_kunden_ma.NewPersonView">
 
+    <children>
+      <VBox alignment="BOTTOM_RIGHT" prefHeight="403.0" prefWidth="497.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+              <TabPane fx:id="tabPane" prefHeight="473.0" prefWidth="497.0" tabClosingPolicy="UNAVAILABLE">
+                  <tabs>
+                      <Tab text="neuer Mitarbeiter">
+                          <content>
+                              <BorderPane>
+                                  <!-- Mitte: Form -->
+                                  <center>
+                                      <GridPane hgap="10" vgap="10">
+                                          <padding>
+                                              <Insets bottom="15" left="15" right="15" top="15" />
+                                          </padding>
+                                          <columnConstraints>
+                                              <ColumnConstraints minWidth="120" />
+                                              <ColumnConstraints hgrow="ALWAYS" />
+                                          </columnConstraints>
+
+                                          <Label text="Mitarbeiternummer" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                          <TextField fx:id="mtfID" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                          <Label text="Vorname" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                          <TextField fx:id="mtfVorname" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      
+                                          <Label text="Nachname" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                          <TextField fx:id="mtfNachname" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                          <Label text="Straße" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                          <TextField fx:id="mtfStraße" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                          <Label text="PLZ" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                          <TextField fx:id="mtfPLZ" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                                          <Label text="Ort" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                          <TextField fx:id="mtfOrt" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                                          <Label text="Telefon" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                          <TextField fx:id="mtfTelefon" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+                                          <Label text="email" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                                          <TextField fx:id="mtfEmail" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                 <rowConstraints>
+<!--                                    <RowConstraints />-->
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                 </rowConstraints>
+      
+                                          <!-- weitere Felder können hier hinzugefügt werden -->
+                                      </GridPane>
+                                  </center>
+                              </BorderPane>
+                          </content>
+                      </Tab>
+      
+                      <Tab text="neuer Externer Mitarbeiter">
+                          <content>
+                              <BorderPane>
+                                  <!-- Mitte: Form -->
+                                  <center>
+                                      <GridPane hgap="10" vgap="10">
+                                          <padding>
+                                              <Insets bottom="15" left="15" right="15" top="15" />
+                                          </padding>
+                                          <columnConstraints>
+                                              <ColumnConstraints minWidth="120" />
+                                              <ColumnConstraints hgrow="ALWAYS" />
+                                          </columnConstraints>
+
+                                          <Label text="Mitarbeiternummer" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                          <TextField fx:id="etfID" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                          <Label text="Vorname" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                          <TextField fx:id="etfVorname" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                          <Label text="Nachname" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                          <TextField fx:id="etfNachname" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                          <Label text="Straße" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                          <TextField fx:id="etfStraße" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                          <Label text="PLZ" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                          <TextField fx:id="etfPLZ" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                                          <Label text="Ort" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                          <TextField fx:id="etfOrt" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                                          <Label text="Telefon" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                          <TextField fx:id="etfTelefon" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+                                          <Label text="email" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                                          <TextField fx:id="etfEmail" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+
+                                          <Label text="Firma" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                                          <TextField fx:id="etfFirma" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+
+                                          <rowConstraints>
+                                              <!--                                    <RowConstraints />-->
+                                              <RowConstraints />
+                                              <RowConstraints />
+                                              <RowConstraints />
+                                              <RowConstraints />
+                                              <RowConstraints />
+                                              <RowConstraints />
+                                              <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                          </rowConstraints>
+
+                                          <!-- weitere Felder können hier hinzugefügt werden -->
+                                      </GridPane>
+                                  </center>
+                              </BorderPane>
+                          </content>
+                      </Tab>
+                      <Tab text="neuer Kunde">
+                          <content>
+                              <BorderPane>
+                                  <!-- Mitte: Form -->
+                                  <center>
+                                      <GridPane hgap="10" vgap="10">
+                                          <padding>
+                                              <Insets bottom="15" left="15" right="15" top="15" />
+                                          </padding>
+                                          <columnConstraints>
+                                              <ColumnConstraints minWidth="120" />
+                                              <ColumnConstraints hgrow="ALWAYS" />
+                                          </columnConstraints>
+
+                                          <Label text="Kundennummer" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                          <TextField fx:id="tfID" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                          <Label text="Vorname" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                          <TextField fx:id="tfVorname" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                          <Label text="Nachname" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                          <TextField fx:id="tfNachname" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                          <Label text="Straße" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                          <TextField fx:id="tfStraße" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                          <Label text="PLZ" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                          <TextField fx:id="tfPLZ" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                                          <Label text="Ort" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                          <TextField fx:id="tfOrt" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                                          <Label text="Telefon" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                          <TextField fx:id="tfTelefon" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+                                          <Label text="email" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                                          <TextField fx:id="tfEmail" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+
+                                          <Label text="Branche" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                                          <TextField fx:id="tfIndustry" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                                          <rowConstraints>
+                                              <!--                                    <RowConstraints />-->
+                                              <RowConstraints />
+                                              <RowConstraints />
+                                              <RowConstraints />
+                                              <RowConstraints />
+                                              <RowConstraints />
+                                              <RowConstraints />
+                                              <RowConstraints />
+                                              <RowConstraints />
+                                    <RowConstraints />
+                                          </rowConstraints>
+
+                                          <!-- weitere Felder können hier hinzugefügt werden -->
+                                      </GridPane>
+                                  </center>
+                              </BorderPane>
+                          </content>
+                      </Tab>
+                  </tabs>
+              </TabPane>
+                     <Button fx:id="btnAdd" onAction="#onAddClicked" text="hinzufügen">
+               <VBox.margin>
+                  <Insets bottom="10.0" right="10.0" />
+               </VBox.margin></Button>
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </VBox>
+    </children>
 </AnchorPane>

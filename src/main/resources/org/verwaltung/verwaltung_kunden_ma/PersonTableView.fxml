@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.verwaltung.verwaltung_kunden_ma.PersonDatas.EmployeesTableController"
+            prefWidth="800" prefHeight="500">
+
+    <!-- Oben: Titel -->
+    <top>
+        <Label text="Personenübersicht" style="-fx-font-size: 18px; -fx-padding: 10;" />
+    </top>
+
+    <!-- Mitte: Tabelle -->
+    <center>
+        <TableView fx:id="employeesTable" BorderPane.alignment="CENTER">
+            <columns>
+                <TableColumn fx:id="colId" text="Mitarbeiternummer" prefWidth="50"/>
+                <TableColumn fx:id="colFirstName" text="Vorname" prefWidth="100"/>
+                <TableColumn fx:id="colLastName" text="Nachname" prefWidth="100"/>
+                <TableColumn fx:id="colStreet" text="Straße" prefWidth="150"/>
+                <TableColumn fx:id="colPlz" text="PLZ" prefWidth="60"/>
+                <TableColumn fx:id="colPlace" text="Ort" prefWidth="100"/>
+                <TableColumn fx:id="colPhone" text="Telefon" prefWidth="100"/>
+                <TableColumn fx:id="colEmail" text="E-Mail" prefWidth="150"/>
+                <TableColumn fx:id="colCompany" text="Firma" prefWidth="150"/>
+                <TableColumn fx:id="colIndustry" text="Branche" prefWidth="150"/>
+                <TableColumn fx:id="colAction" text="Aktion" prefWidth="80"/>
+            </columns>
+        </TableView>
+    </center>
+
+</BorderPane>

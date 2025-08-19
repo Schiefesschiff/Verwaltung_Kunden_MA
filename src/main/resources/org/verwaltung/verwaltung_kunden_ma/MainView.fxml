@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" prefHeight="500.0" prefWidth="965.0" spacing="0.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.verwaltung.verwaltung_kunden_ma.ManagementController">
+    <padding>
+        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+    </padding>
+    <children>
+        <TabPane prefHeight="404.0" prefWidth="349.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+            <tabs>
+                <Tab fx:id="tabOverview" text="Übersicht">
+                    <content>
+                        <AnchorPane prefHeight="437.0" prefWidth="620.0">
+                            <children>
+                                <fx:include fx:id="employeesTable" source="PersonTableView.fxml" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                <Button fx:id="btnMitarbeiter" onAction="#onMitarbeiterClicked" layoutX="179.0" layoutY="14.0" mnemonicParsing="false" text="Mirarbeiter" />
+                                <Button fx:id="btnExtern" onAction="#onExternClicked" layoutX="265.0" layoutY="14.0" mnemonicParsing="false" text="Externe" />
+                                <Button fx:id="btnCustomer" onAction="#onKundenClicked" layoutX="328.0" layoutY="14.0" mnemonicParsing="false" text="Kunden" />
+                                <Button fx:id="btnTestData" layoutX="434.0" layoutY="14.0" mnemonicParsing="false" onAction="#onTestDataClicked" text="TestData" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab text="Mitarbeiter">
+                    <content>
+                        <AnchorPane>
+                     <children>
+                         <fx:include fx:id="individualEmployeeView" source="individualEmployeeView.fxml" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" />
+
+                     </children></AnchorPane>
+                    </content>
+                </Tab>
+                <Tab text="ExterneMitarbeiter">
+                    <content>
+                        <AnchorPane>
+                            <children>
+                                <fx:include fx:id="externalEmployeeView" source="externalEmployeeView.fxml" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" />
+
+                            </children></AnchorPane>
+                    </content>
+                </Tab>
+                <Tab text="Kunden">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+        <HBox alignment="CENTER_RIGHT" prefHeight="31.0" prefWidth="497.0">
+            <children>
+                <Button fx:id="btnNewDataSet" mnemonicParsing="false" text="Neuer Datensatz" />
+            </children>
+        </HBox>
+    </children>
+</VBox>
